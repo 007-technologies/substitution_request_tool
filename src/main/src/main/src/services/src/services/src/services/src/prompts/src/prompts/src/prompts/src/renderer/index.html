@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soprema Substitution Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Update Banner -->
+  <div id="update-banner" class="hidden">
+    <span id="update-text"></span>
+    <button id="update-btn" class="hidden">Restart & Update</button>
+    <button id="dismiss-update" onclick="document.getElementById('update-banner').classList.add('hidden')">&times;</button>
+  </div>
+
+  <header>
+    <h1>Soprema Substitution Request Tool</h1>
+  </header>
+
+  <!-- Upload State -->
+  <section id="upload-section">
+    <div id="drop-zone">
+      <div class="drop-icon">&#128196;</div>
+      <p>Drag & drop a specification PDF here</p>
+      <p class="sub">or</p>
+      <button id="select-btn">Select PDF File</button>
+      <p id="file-name" class="file-info"></p>
+    </div>
+    <button id="analyze-btn" disabled>Analyze Specification</button>
+  </section>
+
+  <!-- Loading State -->
+  <section id="loading-section" class="hidden">
+    <div class="spinner"></div>
+    <p id="progress-text">Starting analysis...</p>
+  </section>
+
+  <!-- Error State -->
+  <section id="error-section" class="hidden">
+    <div class="error-box">
+      <h3>Analysis Error</h3>
+      <p id="error-text"></p>
+      <button id="retry-btn">Try Again</button>
+    </div>
+  </section>
+
+  <!-- Results State -->
+  <section id="results-section" class="hidden">
+    <div class="results-header">
+      <div id="project-info"></div>
+      <div class="results-actions">
+        <button id="export-btn">Export as PDF</button>
+        <button id="new-btn">New Analysis</button>
+      </div>
+    </div>
+
+    <div id="system-recommendation" class="card"></div>
+
+    <h2>Product Comparison</h2>
+    <div id="matches-table"></div>
+
+    <div id="submission-notes" class="card"></div>
+
+    <!-- ── Step 3: Generate Substitution Request ── -->
+    <section id="step3" class="step-section" style="display:none;">
+      <h2 class="step-title">Step 3 — Generate Substitution Request</h2>
+
+      <div class="project-info-form">
+        <h3>Project Information</h3>
+        <p class="form-hint">Fill in the project details below. Claude will combine them with your Step 2 analysis to produce a complete, ready-to-submit Substitution Request Form.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="projectName">Project Name *</label>
+            <input type="text" id="projectName" placeholder="e.g. Central Academy Old Gym Reroof" />
+          </div>
+
+          <div class="form-group">
+            <label for="specSection">Spec Section *</label>
+            <input type="text" id="specSection" placeholder="e.g. 07 52 00 – Modified Bituminous Membrane Roofing" />
+          </div>
+
+          <div class="form-group">
+            <label for="addressedTo">Addressed To (Architect / Spec Writer Firm) *</label>
+            <input type="text" id="addressedTo" placeholder="e.g. Pro Building Envelope Consultants" />
+          </div>
+
+          <div class="form-group">
+            <label for="submittedBy">Submitted By (Your Company) *</label>
+            <input type="text" id="submittedBy" placeholder="e.g. Soprema – Davis Haddock" />
+          </div>
+
+          <div class="form-group">
+            <label for="subRequestDate">Date</label>
+            <input type="text" id="subRequestDate" />
+          </div>
+        </div>
+
+        <button id="generateSubRequestBtn" class="btn btn-primary">
+          Generate Substitution Request
+        </button>
+      </div>
+
+      <!-- Progress / status message -->
+      <p id="step3Status" class="status-message" style="display:none;"></p>
+
+      <!-- Generated form preview -->
+      <div id="subRequestPreview" style="display:none;">
+        <div class="preview-toolbar">
+          <h3>Preview</h3>
+          <button id="exportSubRequestBtn" class="btn btn-secondary">Export as PDF</button>
+        </div>
+        <div id="subRequestContent" class="sub-request-form-preview"></div>
+      </div>
+    </section>
+    <!-- ── End Step 3 ── -->
+
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
