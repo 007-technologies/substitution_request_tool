@@ -1,0 +1,13 @@
+node_modules
+
+# Secrets — never commit
+config.json
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Build artifacts
+dist/
