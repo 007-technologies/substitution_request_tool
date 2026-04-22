@@ -37,8 +37,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "revampedplant756",
-      "repo": "substitution-request-tool"
+      "owner": "007-technologies",
+      "repo": "substitution_request_tool"
     }
   },
   "dependencies": {
