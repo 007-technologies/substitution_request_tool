@@ -11,3 +11,9 @@ config.json
 
 # Build artifacts
 dist/
+
+# Local runtime data (fetched from R2 at runtime; session state)
+data/
+
+# Editor local
+*.code-workspace.local

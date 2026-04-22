@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loading…</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      position: relative;
+      user-select: none;
+      cursor: default;
+    }
+
+    .mesh {
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(227,0,27,0.18) 27px, rgba(227,0,27,0.18) 28px),
+        repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(227,0,27,0.18) 27px, rgba(227,0,27,0.18) 28px);
+      pointer-events: none;
+    }
+
+    .glow {
+      position: absolute;
+      top: -80px;
+      left: -80px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(227,0,27,0.16) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .glow-br {
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 560px;
+      height: 560px;
+      background: radial-gradient(circle, rgba(227,0,27,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .glow-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(227,0,27,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding-bottom: 48px;
+    }
+
+    .badge {
+      width: 110px;
+      height: 110px;
+      background: #E3001B;
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 32px rgba(227,0,27,0.28);
+    }
+
+    .badge span {
+      color: white;
+      font-size: 68px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .brand {
+      font-size: 34px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #888;
+      letter-spacing: 0.4px;
+      margin-bottom: 28px;
+    }
+
+    .indicator {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: absolute;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .dots.fade-out { opacity: 0; }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      background: #E3001B;
+      border-radius: 50%;
+      animation: dotPulse 1.3s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.22s; }
+    .dot:nth-child(3) { animation-delay: 0.44s; }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.75); }
+      50%       { opacity: 1;   transform: scale(1);    }
+    }
+
+    /* ── Continue button ── */
+    .continue-btn {
+      position: absolute;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+
+      display: inline-flex;
+      align-items: center;
+      padding: 13px 38px;
+      background: #E3001B;
+      color: white;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.4px;
+      border-radius: 9px;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      white-space: nowrap;
+
+      animation: btnBounce 2.2s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .continue-btn.fade-in {
+      opacity: 1;
+      pointer-events: auto;
+      animation-play-state: running;
+    }
+
+    @keyframes btnBounce {
+      0%, 100% { transform: translateY(0);    }
+      45%       { transform: translateY(-4px); }
+      65%       { transform: translateY(-2px); }
+    }
+
+    .continue-btn:hover {
+      background: #c50018;
+      transform: translateY(-2px) scale(1.03);
+      transition: background 0.15s ease, transform 0.15s ease, opacity 0.5s ease;
+      animation-play-state: paused;
+    }
+
+    .continue-btn:active {
+      transform: translateY(0) scale(1);
+    }
+
+
+    /* ── Footer ── */
+    .footer {
+      position: absolute;
+      bottom: 22px;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .footer-line1 {
+      font-size: 13px;
+      color: #666;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+
+    .footer-line1 strong { color: #444; font-weight: 600; }
+
+    .footer-line2 {
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    body { animation: fadeIn 0.3s ease forwards; }
+  </style>
+</head>
+<body>
+
+  <div class="glow"></div>
+  <div class="glow-br"></div>
+  <div class="glow-center"></div>
+  <div class="mesh"></div>
+
+  <div class="content">
+    <div class="badge"><span>S</span></div>
+    <div class="brand">Soprema</div>
+    <div class="subtitle">Substitution Request Tool</div>
+
+    <div class="indicator">
+      <div id="dots" class="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <button id="continueBtn" class="continue-btn">
+        Click to continue
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-line1">Powered by <strong>007 Technologies</strong></div>
+    <div class="footer-line2">Skyfall Project</div>
+  </div>
+
+  <script>
+    const dots = document.getElementById('dots');
+    const btn  = document.getElementById('continueBtn');
+    let ready  = false;
+
+    setTimeout(() => {
+      dots.classList.add('fade-out');
+      setTimeout(() => {
+        btn.classList.add('fade-in');
+        setTimeout(() => { ready = true; }, 500);
+      }, 500);
+    }, 3200);
+
+    document.body.addEventListener('click', () => {
+      if (ready) window.close();
+    });
+  </script>
+
+</body>
+</html>

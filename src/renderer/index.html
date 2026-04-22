@@ -15,26 +15,47 @@
   </div>
 
   <header>
-    <h1>Soprema Substitution Request Tool</h1>
+    <div class="header-brand">
+      <span class="header-logo">SOPREMA</span>
+      <span class="header-divider">|</span>
+      <span class="header-app-name">Substitution Request Tool</span>
+    </div>
   </header>
 
   <!-- Upload State -->
   <section id="upload-section">
     <div id="drop-zone">
-      <div class="drop-icon">&#128196;</div>
-      <p>Drag & drop a specification PDF here</p>
-      <p class="sub">or</p>
-      <button id="select-btn">Select PDF File</button>
+      <div class="drop-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="18" x2="12" y2="12"/>
+          <polyline points="9 15 12 12 15 15"/>
+        </svg>
+      </div>
+      <p class="drop-label">Drop your specification PDF here</p>
+      <p class="drop-sub">or</p>
+      <button id="select-btn">Browse File</button>
       <p id="file-name" class="file-info"></p>
     </div>
     <button id="analyze-btn" disabled>Analyze Specification</button>
+
+    <!-- Inline loading card (replaces drop zone while analyzing) -->
+    <div id="upload-loading-card" class="loading-card hidden">
+      <div class="spinner"></div>
+      <p id="progress-text">Starting analysis...</p>
+      <p id="loading-subtext">Getting everything ready.</p>
+      <div class="loading-bar">
+        <div id="loading-bar-fill"></div>
+      </div>
+      <p id="loading-percent">0%</p>
+    </div>
+
+    <div id="session-history-container"></div>
   </section>
 
-  <!-- Loading State -->
-  <section id="loading-section" class="hidden">
-    <div class="spinner"></div>
-    <p id="progress-text">Starting analysis...</p>
-  </section>
+  <!-- Loading State (kept as stub for showSection compatibility) -->
+  <section id="loading-section" class="hidden"></section>
 
   <!-- Error State -->
   <section id="error-section" class="hidden">
@@ -68,7 +89,7 @@
 
       <div class="project-info-form">
         <h3>Project Information</h3>
-        <p class="form-hint">Fill in the project details below. Claude will combine them with your Step 2 analysis to produce a complete, ready-to-submit Substitution Request Form.</p>
+        <p class="form-hint">Fill in the project details below to produce a complete, ready-to-submit Substitution Request Form.</p>
 
         <div class="form-grid">
           <div class="form-group">
@@ -92,6 +113,10 @@
           </div>
 
           <div class="form-group">
+            <label for="architectEmail">Architect Email <span class="label-hint">(for sending)</span></label>
+            <input type="email" id="architectEmail" placeholder="architect@firm.com" />
+          </div>
+          <div class="form-group">
             <label for="subRequestDate">Date</label>
             <input type="text" id="subRequestDate" />
           </div>
@@ -108,8 +133,14 @@
       <!-- Generated form preview -->
       <div id="subRequestPreview" style="display:none;">
         <div class="preview-toolbar">
-          <h3>Preview</h3>
-          <button id="exportSubRequestBtn" class="btn btn-secondary">Export as PDF</button>
+          <div>
+            <h3>Preview</h3>
+            <span class="preview-edit-hint">Click any field to edit before exporting</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button id="exportSubRequestBtn" class="btn btn-secondary">Export as PDF</button>
+            <button id="emailSubRequestBtn" class="btn btn-primary">&#9993; Email to Architect</button>
+          </div>
         </div>
         <div id="subRequestContent" class="sub-request-form-preview"></div>
       </div>
@@ -118,6 +149,32 @@
 
   </section>
 
+  <div id="override-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Change Soprema Product</h3>
+        <button class="modal-close" id="override-close">&times;</button>
+      </div>
+      <input type="text" id="override-search" class="modal-search" placeholder="Search Soprema products..." />
+      <div id="override-list" class="modal-list"></div>
+    </div>
+  </div>
+  <div id="email-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3>Email Substitution Request</h3>
+        <button class="modal-close" id="email-close">&times;</button>
+      </div>
+      <p class="modal-hint">Your email client will open pre-filled &mdash; just attach the PDF before sending.</p>
+      <div class="modal-field">
+        <label>Architect Email</label>
+        <input type="email" id="email-to-input" placeholder="architect@firm.com" />
+      </div>
+      <div class="modal-actions">
+        <button id="email-send-btn" class="btn btn-primary">Open Email Client</button>
+      </div>
+    </div>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>
