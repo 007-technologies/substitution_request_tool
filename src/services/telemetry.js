@@ -20,8 +20,20 @@
  */
 
 const { app } = require('electron');
+const os = require('os');
 
 const TIMEOUT_MS = 5000;
+
+// System info that's stable for the life of the process. Computed once at
+// require time so we don't hit the OS module on every track() call.
+const SYSTEM_INFO = Object.freeze({
+  arch: process.arch,                                                 // 'x64' | 'arm64' | 'arm' | 'ia32'
+  total_memory_mb: Math.round(os.totalmem() / 1024 / 1024),           // total system RAM in MB
+  cpu_count: os.cpus().length,                                        // # logical cores
+  os_release: os.release(),                                           // kernel version, e.g. '23.4.0'
+  electron: process.versions.electron,
+  node: process.versions.node,
+});
 
 async function track(event, metadata = {}) {
   try {
@@ -34,13 +46,22 @@ async function track(event, metadata = {}) {
     // and lets dev builds skip telemetry by leaving config blank.
     if (!endpoint || !key || !customerId) return;
 
+    // Merge system info + per-event metadata. System info comes first so
+    // event-specific metadata can override (it shouldn't, but defensive).
+    const mergedMetadata = {
+      ...SYSTEM_INFO,
+      // Free memory at moment of event — dynamic, not stable like the rest
+      free_memory_mb: Math.round(os.freemem() / 1024 / 1024),
+      ...(metadata && typeof metadata === 'object' ? metadata : {}),
+    };
+
     const payload = {
       event,
       customer_id: customerId,
       product: 'skyfall',
       version: app.getVersion(),
       platform: process.platform,
-      metadata: metadata && typeof metadata === 'object' ? metadata : {},
+      metadata: mergedMetadata,
       client_ts: new Date().toISOString(),
     };
 
