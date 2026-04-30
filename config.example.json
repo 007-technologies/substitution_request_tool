@@ -3,5 +3,8 @@
   "CLOUDFLARE_ACCOUNT_ID": "REPLACE_ME",
   "CLOUDFLARE_ACCESS_KEY_ID": "REPLACE_ME",
   "CLOUDFLARE_SECRET_ACCESS_KEY": "REPLACE_ME",
-  "R2_BUCKET": "soprema-catalog"
+  "R2_BUCKET": "soprema-catalog",
+  "CUSTOMER_ID": "REPLACE_ME (e.g., soprema-davis)",
+  "TELEMETRY_ENDPOINT": "https://007-technologies-website.pages.dev/api/telemetry",
+  "TELEMETRY_KEY": "REPLACE_ME (shared secret — see Cloudflare Pages env vars)"
 }
