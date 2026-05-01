@@ -5,6 +5,14 @@
   "CLOUDFLARE_SECRET_ACCESS_KEY": "REPLACE_ME",
   "R2_BUCKET": "soprema-catalog",
   "CUSTOMER_ID": "REPLACE_ME (e.g., soprema-davis)",
-  "TELEMETRY_ENDPOINT": "https://007-technologies-website.pages.dev/api/telemetry",
-  "TELEMETRY_KEY": "REPLACE_ME (shared secret — see Cloudflare Pages env vars)"
+  "TELEMETRY_ENDPOINT": "https://007technologies.com/api/telemetry",
+  "TELEMETRY_KEY": "REPLACE_ME (shared secret — see Cloudflare Pages env vars)",
+
+  "_BRAND_COMMENT": "Brand identity drives the cover letter signature, page header, and email templates. Default = Soprema. When onboarding Carlisle/GAF/JM/IKO/etc., swap the four BRAND_* fields below.",
+  "BRAND_NAME": "Soprema",
+  "BRAND_NAME_FULL": "Soprema USA",
+  "BRAND_REP_TITLE": "Manufacturer Representative",
+  "BRAND_PRODUCT_LABEL": "Soprema product",
+
+  "_BYO_KEY_COMMENT": "BYO build pattern: ship config.json with ANTHROPIC_API_KEY set to '' (empty string). Cipher's Settings → Anthropic API key card lets the customer paste their own key on first launch; it's stored in their userData dir. Pricing FAQ documents this as a discount path."
 }

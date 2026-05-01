@@ -24,6 +24,11 @@ const os = require('os');
 
 const TIMEOUT_MS = 5000;
 
+// Captured at the first track('app_launched') call so we can compute
+// session duration on app_quit. Set lazily; re-set if app launches twice
+// in one process (rare, but defensive).
+let sessionStartMs = null;
+
 // System info that's stable for the life of the process. Computed once at
 // require time so we don't hit the OS module on every track() call.
 const SYSTEM_INFO = Object.freeze({
@@ -37,6 +42,11 @@ const SYSTEM_INFO = Object.freeze({
 
 async function track(event, metadata = {}) {
   try {
+    // Capture session start on first app_launched of this process.
+    if (event === 'app_launched' && sessionStartMs == null) {
+      sessionStartMs = Date.now();
+    }
+
     const cfg = global.appConfig || {};
     const endpoint = cfg.TELEMETRY_ENDPOINT;
     const key = cfg.TELEMETRY_KEY;
@@ -90,4 +100,38 @@ async function track(event, metadata = {}) {
   }
 }
 
-module.exports = { track };
+/**
+ * Fires app_quit with elapsed session duration in seconds. Call from
+ * main.js's before-quit handler with a short timeout race so the app
+ * doesn't hang on slow networks.
+ */
+async function trackQuit(extraMetadata = {}) {
+  const durationSeconds = sessionStartMs
+    ? Math.round((Date.now() - sessionStartMs) / 1000)
+    : null;
+  await track('app_quit', {
+    duration_seconds: durationSeconds,
+    ...(extraMetadata && typeof extraMetadata === 'object' ? extraMetadata : {}),
+  });
+}
+
+/**
+ * Records an error event. context = which handler/operation the error
+ * came from. err = the Error object (or any thrown value).
+ *
+ * Stack is truncated to 1KB to keep payloads small. Message is whatever
+ * the error has — sometimes useful, sometimes garbage; logged either way.
+ */
+async function trackError(context, err) {
+  const message = err && err.message ? String(err.message) : String(err);
+  const stack = err && err.stack ? String(err.stack).slice(0, 1024) : null;
+  const name = err && err.name ? String(err.name) : 'Error';
+  await track('error', {
+    context: String(context || 'unknown'),
+    message: message.slice(0, 500),
+    stack,
+    name,
+  });
+}
+
+module.exports = { track, trackQuit, trackError };

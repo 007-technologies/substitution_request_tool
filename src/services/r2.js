@@ -70,4 +70,18 @@ async function fetchDocumentBuffer(r2Key) {
   return streamToBuffer(response.Body);
 }
 
-module.exports = { fetchMetadata, fetchDocumentBuffer };
+/**
+ * Fetch any URL as a Buffer. Used for documents hosted outside R2 — e.g.
+ * Soprema PDS files on my.assets-library.com. The fetchDocumentBuffer
+ * function above only works for keys that genuinely live in R2; PDS files
+ * don't, so the bundle export uses this URL-based helper.
+ */
+async function fetchUrlBuffer(url) {
+  if (!url) throw new Error('fetchUrlBuffer: url is required');
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('fetchUrlBuffer: HTTP ' + res.status + ' fetching ' + url);
+  const arrayBuf = await res.arrayBuffer();
+  return Buffer.from(arrayBuf);
+}
+
+module.exports = { fetchMetadata, fetchDocumentBuffer, fetchUrlBuffer };

@@ -3,178 +3,845 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Soprema Substitution Tool</title>
+  <title>007 Technologies — Substitution Request Generator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Update Banner -->
-  <div id="update-banner" class="hidden">
-    <span id="update-text"></span>
-    <button id="update-btn" class="hidden">Restart & Update</button>
-    <button id="dismiss-update" onclick="document.getElementById('update-banner').classList.add('hidden')">&times;</button>
+
+  <!-- ============================================================
+       SPLASH OVERLAY
+       Fades out when ready; sits above everything during launch
+       ============================================================ -->
+  <div id="splash-overlay">
+    <div class="splash-helix-wrap">
+      <svg class="splash-helix" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="splashGrad" x1="0" y1="100" x2="100" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#450A0A"/>
+            <stop offset="20%"  stop-color="#7F1D1D"/>
+            <stop offset="45%"  stop-color="#DC2626"/>
+            <stop offset="70%"  stop-color="#EA580C"/>
+            <stop offset="90%"  stop-color="#F59E0B"/>
+            <stop offset="100%" stop-color="#FCD34D"/>
+          </linearGradient>
+        </defs>
+        <g class="splash-helix-lines" stroke="url(#splashGrad)" fill="none" stroke-linecap="round"></g>
+      </svg>
+    </div>
+
+    <div class="splash-smoke-wrap" aria-hidden="true">
+      <div class="splash-smoke splash-smoke-1"></div>
+      <div class="splash-smoke splash-smoke-2"></div>
+    </div>
+
+    <div class="splash-content">
+      <div class="splash-badge">
+        <span class="splash-dot"></span>
+        <span>File № 007-T-2026</span>
+      </div>
+
+      <h1 class="splash-mark" aria-label="007 Technologies">
+        <span class="splash-mark-nums">
+          <span class="splash-char">0</span><span class="splash-char">0</span><span class="splash-char">7</span>
+        </span>
+        <span class="splash-mark-word">
+          <span class="splash-wchar">T</span><span class="splash-wchar">e</span><span class="splash-wchar">c</span><span class="splash-wchar">h</span><span class="splash-wchar">n</span><span class="splash-wchar">o</span><span class="splash-wchar">l</span><span class="splash-wchar">o</span><span class="splash-wchar">g</span><span class="splash-wchar">i</span><span class="splash-wchar">e</span><span class="splash-wchar">s</span>
+        </span>
+      </h1>
+
+      <p class="splash-product">Substitution Request Generator</p>
+      <p class="splash-codename">CIPHER PROJECT</p>
+    </div>
+
+    <div class="splash-bottom-cta" id="splash-bottom-cta">
+      <div class="splash-line">
+        <div class="splash-bar" id="splash-bar"></div>
+        <div class="splash-line-accent"></div>
+      </div>
+      <div class="splash-hint" id="splash-hint">
+        <span>Click to continue</span>
+      </div>
+    </div>
+
+    <div class="splash-footer">007 Technologies LLC</div>
   </div>
 
-  <header>
-    <div class="header-brand">
-      <span class="header-logo">SOPREMA</span>
-      <span class="header-divider">|</span>
-      <span class="header-app-name">Substitution Request Tool</span>
-    </div>
-  </header>
+  <!-- ============================================================
+       APP SHELL
+       Sidebar + main content area
+       ============================================================ -->
+  <div id="app-shell">
 
-  <!-- Upload State -->
-  <section id="upload-section">
-    <div id="drop-zone">
-      <div class="drop-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="12" y1="18" x2="12" y2="12"/>
-          <polyline points="9 15 12 12 15 15"/>
-        </svg>
+    <aside class="sidebar">
+      <a id="sidebar-brand-link" class="sidebar-brand" href="https://007technologies.com"
+         title="Open 007technologies.com">
+        <span class="sidebar-brand-num">007</span>
+        <span class="sidebar-brand-sep" aria-hidden="true"></span>
+        <span class="sidebar-brand-word">Technologies</span>
+      </a>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Session</div>
+
+        <div class="sidebar-item is-active" data-step="upload">
+          <span class="sidebar-step-icon"></span>
+          <span class="sidebar-step-num">01</span>
+          <span>Upload</span>
+        </div>
+        <div class="sidebar-item is-disabled" data-step="analyze">
+          <span class="sidebar-step-icon"></span>
+          <span class="sidebar-step-num">02</span>
+          <span>Analyze</span>
+        </div>
+        <div class="sidebar-item is-disabled" data-step="review">
+          <span class="sidebar-step-icon"></span>
+          <span class="sidebar-step-num">03</span>
+          <span>Review &amp; generate</span>
+        </div>
+        <div class="sidebar-item is-disabled" data-step="export">
+          <span class="sidebar-step-icon"></span>
+          <span class="sidebar-step-num">04</span>
+          <span>Export</span>
+        </div>
       </div>
-      <p class="drop-label">Drop your specification PDF here</p>
-      <p class="drop-sub">or</p>
-      <button id="select-btn">Browse File</button>
-      <p id="file-name" class="file-info"></p>
-    </div>
-    <button id="analyze-btn" disabled>Analyze Specification</button>
 
-    <!-- Inline loading card (replaces drop zone while analyzing) -->
-    <div id="upload-loading-card" class="loading-card hidden">
-      <div class="spinner"></div>
-      <p id="progress-text">Starting analysis...</p>
-      <p id="loading-subtext">Getting everything ready.</p>
-      <div class="loading-bar">
-        <div id="loading-bar-fill"></div>
+      <hr class="sidebar-divider">
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Library</div>
+        <div class="sidebar-item sidebar-nav" data-nav="recent">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span>Recent Sessions</span>
+        </div>
+        <div class="sidebar-item sidebar-nav" data-nav="catalog">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </span>
+          <span>Catalog</span>
+        </div>
+        <div class="sidebar-item sidebar-nav" data-nav="drafts">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </span>
+          <span>Saved Drafts</span>
+          <span id="sidebar-drafts-badge" class="sidebar-badge hidden"></span>
+        </div>
       </div>
-      <p id="loading-percent">0%</p>
-    </div>
 
-    <div id="session-history-container"></div>
-  </section>
+      <hr class="sidebar-divider">
 
-  <!-- Loading State (kept as stub for showSection compatibility) -->
-  <section id="loading-section" class="hidden"></section>
-
-  <!-- Error State -->
-  <section id="error-section" class="hidden">
-    <div class="error-box">
-      <h3>Analysis Error</h3>
-      <p id="error-text"></p>
-      <button id="retry-btn">Try Again</button>
-    </div>
-  </section>
-
-  <!-- Results State -->
-  <section id="results-section" class="hidden">
-    <div class="results-header">
-      <div id="project-info"></div>
-      <div class="results-actions">
-        <button id="export-btn">Export as PDF</button>
-        <button id="new-btn">New Analysis</button>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Help</div>
+        <div class="sidebar-item sidebar-nav" data-nav="guide">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span>User Guide</span>
+        </div>
+        <div class="sidebar-item sidebar-nav" data-nav="support">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </span>
+          <span>Support</span>
+        </div>
+        <div class="sidebar-item sidebar-nav" data-nav="feedback">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <span>Send feedback</span>
+        </div>
       </div>
-    </div>
 
-    <div id="system-recommendation" class="card"></div>
+      <div class="sidebar-footer">
+        <div class="sidebar-item sidebar-nav" data-nav="settings">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+          <span>Settings</span>
+        </div>
+      </div>
+    </aside>
 
-    <h2>Product Comparison</h2>
-    <div id="matches-table"></div>
+    <main class="app-content">
 
-    <div id="submission-notes" class="card"></div>
+      <!-- Update banner -->
+      <div id="update-banner" class="hidden">
+        <span id="update-text"></span>
+        <button id="update-btn" class="hidden">Restart & Update</button>
+        <button id="dismiss-update" onclick="document.getElementById('update-banner').classList.add('hidden')">&times;</button>
+      </div>
 
-    <!-- ── Step 3: Generate Substitution Request ── -->
-    <section id="step3" class="step-section" style="display:none;">
-      <h2 class="step-title">Step 3 — Generate Substitution Request</h2>
+      <!-- License banner — shown only when /api/license/check has reported
+           invalid for 3+ consecutive launches. Soft warning; doesn't block
+           app functionality. Real customers should never see this. -->
+      <div id="license-banner" class="hidden license-banner">
+        <span id="license-banner-text">This build's license check isn't matching our records. Please reach out so we can sort it.</span>
+        <a id="license-banner-cta" href="mailto:reed@007technologies.com?subject=Cipher%20license%20question" class="license-banner-btn">Contact Reed</a>
+        <button id="license-banner-close" onclick="document.getElementById('license-banner').classList.add('hidden')" aria-label="Dismiss">&times;</button>
+      </div>
 
-      <div class="project-info-form">
-        <h3>Project Information</h3>
-        <p class="form-hint">Fill in the project details below to produce a complete, ready-to-submit Substitution Request Form.</p>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="projectName">Project Name *</label>
-            <input type="text" id="projectName" placeholder="e.g. Central Academy Old Gym Reroof" />
+      <!-- ============================================================
+           STEP 01 — UPLOAD
+           ============================================================ -->
+      <section id="upload-section">
+        <header id="upload-intro-header" class="section-header">
+          <div class="section-label">
+            <span class="section-label-num">01</span>
+            <span>Upload specification</span>
           </div>
+          <h1 class="section-headline">
+            Drop your spec. <span class="headline-alt">We handle the rest.</span>
+          </h1>
+          <p class="section-lead">
+            Drag a CSI MasterFormat specification PDF below or browse your
+            files. Supports up to 50MB — a typical project manual takes
+            under two minutes to extract.
+          </p>
+        </header>
 
-          <div class="form-group">
-            <label for="specSection">Spec Section *</label>
-            <input type="text" id="specSection" placeholder="e.g. 07 52 00 – Modified Bituminous Membrane Roofing" />
+        <header id="analyze-header" class="section-header hidden">
+          <div class="section-label">
+            <span class="section-label-num">02</span>
+            <span>Analyze specification</span>
           </div>
+          <h1 class="section-headline">
+            Reading your spec. <span class="headline-alt">Sit tight.</span>
+          </h1>
+          <p class="section-lead">
+            Extracting roofing content and matching products against the
+            Soprema catalog. This usually takes under two minutes.
+          </p>
+        </header>
 
-          <div class="form-group">
-            <label for="addressedTo">Addressed To (Architect / Spec Writer Firm) *</label>
-            <input type="text" id="addressedTo" placeholder="e.g. Pro Building Envelope Consultants" />
+        <div id="drop-zone" class="dropzone">
+          <div class="dropzone-icon">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <polyline points="9 15 12 12 15 15"/>
+            </svg>
           </div>
+          <p class="dropzone-title">Drop your specification PDF here</p>
+          <p class="dropzone-hint">or</p>
+          <button id="select-btn" class="btn btn-ghost">Browse file</button>
+          <p id="file-name" class="file-info"></p>
+        </div>
 
-          <div class="form-group">
-            <label for="submittedBy">Submitted By (Your Company) *</label>
-            <input type="text" id="submittedBy" placeholder="e.g. Soprema – Davis Haddock" />
-          </div>
+        <!-- Sample-spec affordance: only shown if assets/samples/sample-spec.pdf
+             ships with the build. Lets prospects on a fresh install play with the
+             tool without needing their own spec PDF on hand for the demo. -->
+        <p id="sample-spec-hint" class="sample-hint hidden">
+          No spec handy? <button id="load-sample-spec" class="link-btn" type="button">Try with a sample spec</button>
+        </p>
 
-          <div class="form-group">
-            <label for="architectEmail">Architect Email <span class="label-hint">(for sending)</span></label>
-            <input type="email" id="architectEmail" placeholder="architect@firm.com" />
+        <div class="upload-actions">
+          <button id="analyze-btn" class="btn btn-accent-solid btn-lg" disabled>
+            Analyze specification
+          </button>
+        </div>
+
+        <!-- Inline loading card (replaces drop zone while analyzing) -->
+        <div id="upload-loading-card" class="loading-card hidden">
+          <div class="spinner"></div>
+          <p id="progress-text">Starting analysis…</p>
+          <p id="loading-subtext">Getting everything ready.</p>
+          <div class="loading-bar">
+            <div id="loading-bar-fill"></div>
           </div>
-          <div class="form-group">
-            <label for="subRequestDate">Date</label>
-            <input type="text" id="subRequestDate" />
+          <p id="loading-percent">0%</p>
+        </div>
+
+        <div id="session-history-container"></div>
+      </section>
+
+      <!-- Loading stub — kept for showSection compatibility -->
+      <section id="loading-section" class="hidden"></section>
+
+      <!-- ============================================================
+           ERROR STATE
+           ============================================================ -->
+      <section id="error-section" class="hidden">
+        <div class="error-box">
+          <div class="section-label">
+            <span class="section-label-num">!</span>
+            <span>Analysis error</span>
+          </div>
+          <h2 class="type-display-sm">Something went wrong.</h2>
+          <p id="error-text" class="type-body"></p>
+          <button id="retry-btn" class="btn btn-primary">Try again</button>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           RESULTS — extract / match / generate
+           Existing IDs preserved for app.js compatibility.
+           Styling will be polished post-Davis feedback.
+           ============================================================ -->
+      <section id="results-section" class="hidden">
+        <div class="results-header">
+          <div class="section-label">
+            <span class="section-label-num">02</span>
+            <span>Extraction &amp; match</span>
+          </div>
+          <div id="project-info"></div>
+          <div class="results-actions">
+            <button id="export-btn" class="btn btn-ghost">Export as PDF</button>
+            <button id="new-btn" class="btn btn-ghost">New analysis</button>
           </div>
         </div>
 
-        <button id="generateSubRequestBtn" class="btn btn-primary">
-          Generate Substitution Request
-        </button>
-      </div>
+        <div id="system-recommendation" class="card"></div>
 
-      <!-- Progress / status message -->
-      <p id="step3Status" class="status-message" style="display:none;"></p>
+        <h2 class="type-display-sm">Product comparison</h2>
+        <div id="matches-table"></div>
 
-      <!-- Generated form preview -->
-      <div id="subRequestPreview" style="display:none;">
-        <div class="preview-toolbar">
-          <div>
-            <h3>Preview</h3>
-            <span class="preview-edit-hint">Click any field to edit before exporting</span>
+        <div id="submission-notes" class="card"></div>
+
+        <!-- ============================================================
+             AI QUERY BAR — ask questions about the extracted spec +
+             matched products. Haiku-powered. Sits between Step 2 (match
+             comparison) and Step 3 (generate sub request).
+             ============================================================ -->
+        <section id="query-bar" class="query-bar" style="display:none;">
+          <div class="query-header" id="query-toggle" role="button" tabindex="0"
+               aria-expanded="true" aria-controls="query-body">
+            <div class="query-title">
+              <span>Ask about this spec</span>
+            </div>
+            <span class="query-chevron" id="query-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
-          <div style="display:flex;gap:8px;">
-            <button id="exportSubRequestBtn" class="btn btn-secondary">Export as PDF</button>
-            <button id="emailSubRequestBtn" class="btn btn-primary">&#9993; Email to Architect</button>
+
+          <div class="query-body" id="query-body">
+            <p class="query-hint">
+              Ask anything — the spec, the matches, compliance.
+            </p>
+
+            <div class="query-suggestions" id="query-suggestions">
+              <button class="query-suggestion" data-q="What are the biggest risks to compliance with this spec?">Compliance risks</button>
+              <button class="query-suggestion" data-q="Summarize the spec in 3 bullet points for a PM.">PM summary</button>
+              <button class="query-suggestion" data-q="Which matched product has the weakest fit, and why?">Weakest match</button>
+              <button class="query-suggestion" data-q="What data would strengthen this substitution request?">Strengthen the case</button>
+            </div>
+
+            <div class="query-input-row">
+              <input type="text" id="query-input" class="query-input"
+                     placeholder="e.g. How does Soprema SOPRASTICK compare to the spec's self-adhered requirement?" />
+              <button id="query-submit" class="query-submit" title="Ask" aria-label="Ask">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+
+            <div id="query-thread" class="query-thread"></div>
+          </div>
+        </section>
+
+        <!-- Step 3 — Generate Substitution Request -->
+        <section id="step3" class="step-section" style="display:none;">
+          <div class="section-label">
+            <span class="section-label-num">03</span>
+            <span>Generate substitution request</span>
+          </div>
+          <h2 class="type-display-sm">Project information</h2>
+          <p class="type-body type-muted form-hint">
+            Fill in the project details below to produce a complete,
+            ready-to-submit substitution request form.
+          </p>
+
+          <div class="project-info-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="projectName">Project name *</label>
+                <input type="text" id="projectName" placeholder="e.g. Central Academy Old Gym Reroof" />
+              </div>
+
+              <div class="form-group">
+                <label for="specSection">Spec section *</label>
+                <input type="text" id="specSection" placeholder="e.g. 07 52 00 – Modified Bituminous Membrane Roofing" />
+              </div>
+
+              <div class="form-group">
+                <label for="addressedTo">Addressed to (Architect / Spec Writer Firm) *</label>
+                <input type="text" id="addressedTo" placeholder="e.g. Pro Building Envelope Consultants" />
+              </div>
+
+              <div class="form-group">
+                <label for="submittedBy">Submitted by (Your company) *</label>
+                <input type="text" id="submittedBy" placeholder="e.g. Soprema — Davis Haddock" />
+              </div>
+
+              <div class="form-group">
+                <label for="architectEmail">Architect email <span class="label-hint">(for sending)</span></label>
+                <input type="email" id="architectEmail" placeholder="architect@firm.com" />
+              </div>
+
+              <div class="form-group">
+                <label for="subRequestDate">Date</label>
+                <input type="text" id="subRequestDate" />
+              </div>
+            </div>
+
+            <button id="generateSubRequestBtn" class="btn btn-accent-solid">
+              Generate substitution request
+            </button>
+          </div>
+
+          <p id="step3Status" class="status-message" style="display:none;"></p>
+
+          <div id="subRequestPreview" style="display:none;">
+            <div class="preview-toolbar">
+              <div>
+                <h3>Preview</h3>
+                <span class="preview-edit-hint">Click any field to edit before exporting</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button id="exportSubRequestBtn" class="btn btn-ghost">Export as PDF</button>
+                <button id="exportBundleBtn" class="btn btn-ghost" title="Cover letter + substitution request + every Soprema datasheet, merged into one PDF">Download full package</button>
+                <button id="emailSubRequestBtn" class="btn btn-primary">Email to architect</button>
+              </div>
+            </div>
+            <div id="subRequestContent" class="sub-request-form-preview"></div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- ============================================================
+           LIBRARY — Recent Sessions
+           ============================================================ -->
+      <section id="library-recent-section" class="library-section hidden">
+        <header class="section-header">
+          <div class="section-label">
+            <span>Library · Recent Sessions</span>
+          </div>
+          <h1 class="section-headline">
+            Your recent analyses. <span class="headline-alt">Pick up where you left off.</span>
+          </h1>
+          <p class="section-lead">
+            Restore any previous analysis to its results screen — the match
+            table, system recommendation, and generated substitution request
+            all come back exactly as you left them.
+          </p>
+        </header>
+
+        <div class="library-toolbar">
+          <input type="search" id="library-recent-search" class="library-search" placeholder="Search by project or filename..." />
+          <div class="library-count" id="library-recent-count"></div>
+        </div>
+
+        <div id="library-recent-list" class="library-list"></div>
+
+        <div id="library-recent-empty" class="empty-state hidden">
+          <h3>No sessions yet</h3>
+          <p>When you analyze a specification, it'll be saved here for quick restoration later. Your last 15 analyses are kept automatically.</p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           LIBRARY — Soprema Catalog
+           ============================================================ -->
+      <section id="library-catalog-section" class="library-section hidden">
+        <header class="section-header">
+          <div class="section-label">
+            <span>Library · Catalog</span>
+          </div>
+          <h1 class="section-headline">
+            Soprema catalog. <span class="headline-alt">Searchable.</span>
+          </h1>
+          <p class="section-lead">
+            The full Soprema product catalog loaded from the R2 bucket.
+            Filter by name or role to find any product used by the matcher.
+          </p>
+        </header>
+
+        <div class="library-toolbar">
+          <input type="search" id="library-catalog-search" class="library-search" placeholder="Search by product name or role..." />
+          <div class="library-count" id="library-catalog-count"></div>
+        </div>
+
+        <div id="library-catalog-list" class="library-list library-catalog-grid"></div>
+
+        <div id="library-catalog-empty" class="empty-state hidden">
+          <h3>Catalog unavailable</h3>
+          <p>Couldn't load the Soprema product catalog. Check your Cloudflare R2 credentials in config.json and restart the app.</p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           LIBRARY — Saved Drafts
+           ============================================================ -->
+      <section id="library-drafts-section" class="library-section hidden">
+        <header class="section-header">
+          <div class="section-label">
+            <span>Library · Saved Drafts</span>
+          </div>
+          <h1 class="section-headline">
+            Drafts in progress. <span class="headline-alt">Resume any time.</span>
+          </h1>
+          <p class="section-lead">
+            Substitution requests you started but didn't finish. Restore a
+            draft to reopen it with the project info and matches exactly as
+            they were when you saved.
+          </p>
+        </header>
+
+        <div class="library-toolbar">
+          <input type="search" id="library-drafts-search" class="library-search" placeholder="Search drafts..." />
+          <div class="library-count" id="library-drafts-count"></div>
+        </div>
+
+        <div id="library-drafts-list" class="library-list"></div>
+
+        <div id="library-drafts-empty" class="empty-state hidden">
+          <h3>No drafts yet</h3>
+          <p>Start generating a substitution request — you'll see a "Save draft" option in Step 3 that lets you save your progress and come back later.</p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           HELP — User Guide (inline reader)
+           ============================================================ -->
+      <section id="help-guide-section" class="library-section hidden">
+        <header class="section-header">
+          <div class="section-label">
+            <span>Help · User Guide</span>
+          </div>
+          <h1 class="section-headline">
+            User guide. <span class="headline-alt">Everything you need.</span>
+          </h1>
+        </header>
+
+        <article id="help-guide-content" class="help-guide-content">
+          <p class="type-muted">Loading guide…</p>
+        </article>
+      </section>
+
+      <!-- ============================================================
+           SETTINGS
+           ============================================================ -->
+      <section id="settings-section" class="library-section hidden">
+        <header class="section-header">
+          <div class="section-label">
+            <span>Settings</span>
+          </div>
+          <h1 class="section-headline">
+            Configure the app. <span class="headline-alt">Inspect data, reset state.</span>
+          </h1>
+          <p class="section-lead">
+            App info, data storage, and housekeeping controls.
+          </p>
+        </header>
+
+        <div class="settings-grid">
+          <div class="settings-card">
+            <div class="settings-card-label">Version</div>
+            <div class="settings-card-value" id="settings-version">—</div>
+            <div class="settings-card-meta" id="settings-version-meta"></div>
+            <button id="settings-check-updates" class="btn btn-ghost btn-sm">Check for updates</button>
+            <div id="settings-update-status" class="settings-card-meta" style="margin-top: 6px;"></div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-label">Customer</div>
+            <div class="settings-card-value" id="settings-customer-id">—</div>
+            <div class="settings-card-meta">Your build's identifier — Reed sees this in admin telemetry.</div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-label">Data folder</div>
+            <div class="settings-card-value settings-path" id="settings-data-path">—</div>
+            <button id="settings-reveal-data" class="btn btn-ghost btn-sm">Reveal in Finder</button>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-label">Logs folder</div>
+            <div class="settings-card-value settings-path" id="settings-logs-path">—</div>
+            <button id="settings-reveal-logs" class="btn btn-ghost btn-sm">Reveal in Finder</button>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-label">Send feedback</div>
+            <div class="settings-card-meta">Bugs, ideas, or just tell us what's working. Goes straight to Reed.</div>
+            <button id="settings-feedback" class="btn btn-ghost btn-sm">Open feedback form</button>
+          </div>
+
+
+          <div class="settings-card settings-card-danger">
+            <div class="settings-card-label">Reset history</div>
+            <div class="settings-card-meta">Deletes all saved sessions and drafts from this machine. Does not affect the Soprema catalog or your config.</div>
+            <button id="settings-clear-history" class="btn btn-ghost btn-sm settings-btn-danger">Clear all history</button>
           </div>
         </div>
-        <div id="subRequestContent" class="sub-request-form-preview"></div>
-      </div>
-    </section>
-    <!-- ── End Step 3 ── -->
 
-  </section>
+        <div class="settings-credits">
+          <p class="type-mono type-muted">
+            Substitution Request Generator · Built by 007 Technologies LLC · Pilot for Soprema · Made in Atlanta.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
 
+  <!-- ============================================================
+       MODALS (preserved)
+       ============================================================ -->
   <div id="override-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-header">
-        <h3>Change Soprema Product</h3>
+        <h3>Change Soprema product</h3>
         <button class="modal-close" id="override-close">&times;</button>
       </div>
       <input type="text" id="override-search" class="modal-search" placeholder="Search Soprema products..." />
       <div id="override-list" class="modal-list"></div>
     </div>
   </div>
+
   <div id="email-modal" class="modal-overlay hidden">
     <div class="modal-box modal-sm">
       <div class="modal-header">
-        <h3>Email Substitution Request</h3>
+        <h3>Email substitution request</h3>
         <button class="modal-close" id="email-close">&times;</button>
       </div>
       <p class="modal-hint">Your email client will open pre-filled &mdash; just attach the PDF before sending.</p>
       <div class="modal-field">
-        <label>Architect Email</label>
+        <label>Architect email</label>
         <input type="email" id="email-to-input" placeholder="architect@firm.com" />
       </div>
       <div class="modal-actions">
-        <button id="email-send-btn" class="btn btn-primary">Open Email Client</button>
+        <button id="email-send-btn" class="btn btn-primary">Open email client</button>
       </div>
     </div>
   </div>
+
+  <!-- ============================================================
+       FIRST-LAUNCH ONBOARDING MODAL — shown only once per machine
+       ============================================================ -->
+  <div id="onboarding-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-md">
+      <div class="modal-header">
+        <h3>Welcome to Cipher</h3>
+        <button class="modal-close" id="onboarding-skip">&times;</button>
+      </div>
+      <p class="modal-hint">Cipher turns architect-specified roofing products into Soprema substitution requests in under two minutes. Here's the four-step flow:</p>
+
+      <ol class="onboarding-steps">
+        <li>
+          <span class="onboarding-step-num">01</span>
+          <div>
+            <strong>Upload</strong><br>
+            <span class="onboarding-step-desc">Drop a spec PDF (the project's full specification book or just the roofing section).</span>
+          </div>
+        </li>
+        <li>
+          <span class="onboarding-step-num">02</span>
+          <div>
+            <strong>Analyze</strong><br>
+            <span class="onboarding-step-desc">Cipher reads the spec, finds the architect-specified roofing products, and matches them to Soprema's catalog.</span>
+          </div>
+        </li>
+        <li>
+          <span class="onboarding-step-num">03</span>
+          <div>
+            <strong>Review &amp; generate</strong><br>
+            <span class="onboarding-step-desc">Confirm the matches, fill in the project context (architect, location, etc.), and Cipher drafts the substitution request.</span>
+          </div>
+        </li>
+        <li>
+          <span class="onboarding-step-num">04</span>
+          <div>
+            <strong>Export</strong><br>
+            <span class="onboarding-step-desc">One-click "Download full package" — cover letter + property comparison + every Soprema datasheet, merged into a single bookmarked PDF ready to email.</span>
+          </div>
+        </li>
+      </ol>
+
+      <p class="modal-hint" id="onboarding-sample-hint" style="display:none">
+        First time? <button id="onboarding-try-sample" class="link-btn" type="button">Try with a sample spec</button> &mdash; no upload needed.
+      </p>
+
+      <div class="modal-actions">
+        <button id="onboarding-start" class="btn btn-primary">Get started</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       WHAT'S NEW MODAL — shown once after auto-update completes
+       ============================================================ -->
+  <div id="whatsnew-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3 id="whatsnew-title">What's new in Cipher</h3>
+        <button class="modal-close" id="whatsnew-close">&times;</button>
+      </div>
+      <p id="whatsnew-meta" class="modal-hint"></p>
+      <ul id="whatsnew-list" class="whatsnew-list"></ul>
+      <div class="modal-actions">
+        <button id="whatsnew-ok" class="btn btn-primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FEEDBACK MODAL — in-app feedback that POSTs to /api/feedback
+       ============================================================ -->
+  <div id="feedback-modal" class="modal-overlay hidden">
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3>Send feedback</h3>
+        <button class="modal-close" id="feedback-close">&times;</button>
+      </div>
+      <p class="modal-hint">Goes straight to Reed. Bugs, ideas, anything that's tripping you up &mdash; all welcome.</p>
+
+      <div class="modal-field">
+        <label>What is this?</label>
+        <div class="feedback-cat-row">
+          <button class="btn btn-ghost feedback-cat" data-cat="bug">Bug</button>
+          <button class="btn btn-ghost feedback-cat" data-cat="idea">Idea</button>
+          <button class="btn btn-ghost feedback-cat" data-cat="praise">Praise</button>
+          <button class="btn btn-ghost feedback-cat is-active" data-cat="other">Other</button>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label for="feedback-body">What's on your mind?</label>
+        <textarea id="feedback-body" rows="6" placeholder="The more specific the better — what you were doing, what you expected, what happened instead." maxlength="8000"></textarea>
+      </div>
+
+      <div class="modal-field">
+        <label for="feedback-email">Email <span class="modal-hint-inline">(optional — only if you want a reply)</span></label>
+        <input type="email" id="feedback-email" placeholder="you@company.com" />
+      </div>
+
+      <div id="feedback-status" class="feedback-status hidden"></div>
+
+      <div class="modal-actions">
+        <button id="feedback-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="feedback-send" class="btn btn-primary">Send feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SPLASH OVERLAY — helix animation + dismiss logic
+       ============================================================ -->
+  <script>
+    (function () {
+      // Animated helix in the splash overlay
+      const wrap = document.querySelector('.splash-helix-wrap');
+      const group = wrap?.querySelector('.splash-helix-lines');
+      if (!group) return;
+
+      const prefersReducedMotion =
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const NUM_LINES = prefersReducedMotion ? 40 : 78;
+      const SEGMENTS = 14;
+      const TILT = 14;
+      const linePaths = [];
+
+      for (let i = 0; i < NUM_LINES; i++) {
+        const p = document.createElementNS(SVG_NS, 'path');
+        const t = i / (NUM_LINES - 1);
+        const dist = Math.abs(t - 0.5) * 2;
+        p.setAttribute('stroke-width', (0.26 - dist * 0.08).toFixed(3));
+        p.setAttribute('stroke-opacity', (0.80 - dist * 0.15).toFixed(2));
+        group.appendChild(p);
+        linePaths.push({
+          el: p,
+          phase: i * 0.28,
+          baseY: t * 120 - 10,
+          wobble: 1.0,
+          amp: 2.4,
+        });
+      }
+
+      let tX = 50, tY = 50, sX = 50, sY = 50;
+      let mouseActive = false;
+      let lastMouse = 0;
+
+      window.addEventListener('mousemove', (e) => {
+        const overlay = document.getElementById('splash-overlay');
+        if (!overlay || overlay.classList.contains('is-hidden')) return;
+        const rect = wrap.getBoundingClientRect();
+        tX = ((e.clientX - rect.left) / rect.width) * 100;
+        tY = ((e.clientY - rect.top) / rect.height) * 100;
+        mouseActive = true;
+        lastMouse = performance.now();
+      }, { passive: true });
+
+      function buildPath(line, time) {
+        const drift = time * 0.00028;
+        let d = '';
+        for (let s = 0; s <= SEGMENTS; s++) {
+          const tt = s / SEGMENTS;
+          const x = tt * 128 - 14;
+          let y = line.baseY + TILT * (tt - 0.5);
+          const wave = line.phase + drift + s * 0.42 * line.wobble;
+          y += Math.sin(wave) * line.amp;
+          y += Math.cos(wave * 0.53 + line.phase * 0.3) * 0.8;
+          const dx = x - sX;
+          const dy = y - sY;
+          const dsq = dx * dx + dy * dy;
+          const falloff = 28 / (1 + dsq * 0.016);
+          if (dsq > 0.01) y += (dy / Math.sqrt(dsq)) * falloff;
+          d += (s === 0 ? 'M' : ' L') + x.toFixed(2) + ' ' + y.toFixed(2);
+        }
+        return d;
+      }
+
+      function animate(time) {
+        const overlay = document.getElementById('splash-overlay');
+        if (!overlay || overlay.classList.contains('is-fully-hidden')) return;
+
+        if (!mouseActive || time - lastMouse > 3000) {
+          const t = time * 0.0002;
+          tX = 50 + Math.sin(t) * 30;
+          tY = 50 + Math.cos(t * 0.9) * 22;
+        }
+        sX += (tX - sX) * 0.05;
+        sY += (tY - sY) * 0.05;
+        for (let i = 0; i < linePaths.length; i++) {
+          linePaths[i].el.setAttribute('d', buildPath(linePaths[i], time));
+        }
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      // Splash dismiss choreography
+      const splashOverlay = document.getElementById('splash-overlay');
+      const bottomCta = document.getElementById('splash-bottom-cta');
+      let ready = false;
+
+      setTimeout(() => {
+        bottomCta.classList.add('is-ready');
+        ready = true;
+      }, 2500);
+
+      document.addEventListener('click', (e) => {
+        if (!ready) return;
+        if (splashOverlay.classList.contains('is-hidden')) return;
+        splashOverlay.classList.add('is-leaving');
+        setTimeout(() => {
+          splashOverlay.classList.add('is-hidden');
+          setTimeout(() => {
+            splashOverlay.classList.add('is-fully-hidden');
+          }, 500);
+        }, 100);
+      });
+    })();
+  </script>
+
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 {
   "name": "soprema-substitution-tool",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Soprema product substitution request tool",
   "main": "src/main/main.js",
   "scripts": {

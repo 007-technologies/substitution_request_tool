@@ -4,10 +4,75 @@ const path = require('path');
 
 let client;
 
+// Resolve the Anthropic API key in priority order:
+//   1. User-supplied key (saved via Settings → Manage API key) — for BYO
+//      enterprise customers who want billing on their own Anthropic account
+//   2. Bundled key from config.json — the default for Reed-hosted customers
+//   3. Empty string — getClient() will throw on first call, surfacing a
+//      clear "no API key configured" error to the renderer
+//
+// Why prefer user-supplied: an enterprise customer who has set a key has
+// explicitly opted into BYO billing. Their key wins even if a bundled
+// fallback is present.
+function resolveApiKey() {
+  try {
+    const userKeyFile = path.join(global.dataDir || '', 'user-api-key.json');
+    if (userKeyFile && fs.existsSync(userKeyFile)) {
+      const raw = fs.readFileSync(userKeyFile, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.apiKey === 'string' && parsed.apiKey.trim()) {
+        return parsed.apiKey.trim();
+      }
+    }
+  } catch (_) { /* corrupt file — fall through to bundled */ }
+  return (global.appConfig && global.appConfig.ANTHROPIC_API_KEY) || '';
+}
+
 function getClient() {
   if (client) return client;
-  client = new Anthropic({ apiKey: global.appConfig.ANTHROPIC_API_KEY });
+  const apiKey = resolveApiKey();
+  if (!apiKey) {
+    throw new Error('No Anthropic API key configured. Open Settings → Manage API key to add one.');
+  }
+  client = new Anthropic({ apiKey });
   return client;
+}
+
+// Resets the cached client. Called after the user saves a new API key so
+// the next request picks up the change without an app restart.
+function resetClient() {
+  client = null;
+}
+
+// Per-run cost telemetry. Logs each Claude call with token counts and an
+// approximate dollar estimate so we can see what each Skyfall iteration costs
+// without leaving the dev console open. Keeps a session-wide running total.
+const PRICING_PER_MTOK = {
+  // Sonnet 4 — input $3 / output $15 per MTok
+  'claude-sonnet-4-20250514': { in: 3.0, out: 15.0 },
+  // Haiku 4.5 — input $1 / output $5 per MTok
+  'claude-haiku-4-5-20251001': { in: 1.0, out: 5.0 },
+};
+
+const sessionTotals = { in: 0, out: 0, cost: 0 };
+
+function logUsage(label, model, usage) {
+  const inTok = usage?.input_tokens ?? 0;
+  const outTok = usage?.output_tokens ?? 0;
+  const price = PRICING_PER_MTOK[model] || { in: 0, out: 0 };
+  const cost = (inTok / 1e6) * price.in + (outTok / 1e6) * price.out;
+
+  sessionTotals.in += inTok;
+  sessionTotals.out += outTok;
+  sessionTotals.cost += cost;
+
+  console.log(
+    `[claude:${label}] ${model} — in=${inTok.toLocaleString()} ` +
+    `out=${outTok.toLocaleString()} cost=$${cost.toFixed(4)} ` +
+    `| session in=${sessionTotals.in.toLocaleString()} ` +
+    `out=${sessionTotals.out.toLocaleString()} ` +
+    `total=$${sessionTotals.cost.toFixed(4)}`
+  );
 }
 
 function loadPrompt(name) {
@@ -302,7 +367,9 @@ async function extractProducts(specInput, sendProgress) {
   const response = await withRateLimitRetry(() =>
     getClient().messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
+      // Bumped from 4096 — the new performance_properties array per product
+      // makes the response materially larger; truncation causes JSON parse failures.
+      max_tokens: 16000,
       system: loadPrompt('extract'),
       messages: [{
         role: 'user',
@@ -312,7 +379,29 @@ async function extractProducts(specInput, sendProgress) {
       }],
     }), sendProgress);
 
-  const parsed = parseJSON(response.content[0].text);
+  logUsage('extract', 'claude-sonnet-4-20250514', response?.usage);
+  const text = response?.content?.[0]?.text;
+  if (response?.stop_reason === 'max_tokens') {
+    throw new Error(
+      'Failed to parse Claude response as JSON. Hit the max_tokens cap on the extract step — output was truncated. Try again with a smaller spec, or raise the cap.'
+    );
+  }
+  const parsed = parseJSON(text);
+
+  // Spec-extraction audit log. Print property count per extracted product so
+  // we can see when extract.txt missed structured properties. A spec product
+  // with 0 properties is almost always a sign that the extractor missed the
+  // structured property text (e.g. spec wrote properties in narrative form
+  // and category-specific guidance in extract.txt didn't catch them).
+  if (parsed && Array.isArray(parsed.products)) {
+    const summary = parsed.products.map((p, i) => {
+      const n = (p.performance_properties || []).length;
+      const flag = n === 0 ? ' ⚠ no properties extracted' : '';
+      return `  ${i + 1}. ${p.manufacturer || '?'} ${p.product_name || '?'} → ${n} properties${flag}`;
+    }).join('\n');
+    console.log(`[claude:extract] Spec audit (${parsed.products.length} products extracted):\n${summary}`);
+  }
+
   return annotateExtractedDataWithCitations(parsed, normalized.pages);
 }
 
@@ -329,12 +418,83 @@ async function matchProducts(extracted, condensedCatalog, documentsList, sendPro
   const response = await withRateLimitRetry(() =>
     getClient().messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 6144,
+      // Bumped from 6144 — soprema_properties mirroring spec properties roughly
+      // doubles the response size.
+      max_tokens: 16000,
       system: loadPrompt('match'),
       messages: [{ role: 'user', content: userMessage }],
     }), sendProgress);
 
+  logUsage('match', 'claude-sonnet-4-20250514', response?.usage);
+  if (response?.stop_reason === 'max_tokens') {
+    throw new Error(
+      'Failed to parse Claude response as JSON. Hit the max_tokens cap on the match step — output was truncated.'
+    );
+  }
   return parseJSON(response.content[0].text);
+}
+
+/**
+ * Haiku-powered query bar.
+ * Answers natural-language questions about the extracted spec and matched
+ * Soprema products. Uses Claude Haiku (fast + cheap) since the context is
+ * already small and the answers are conversational, not structured.
+ *
+ * @param {string} question - user's plain-language question
+ * @param {Object} context - { extracted, matched, history }
+ * @returns {Promise<{ answer: string }>}
+ */
+async function askQuestion(question, context = {}) {
+  const { extracted = {}, matched = {}, history = [] } = context;
+
+  // Strip citation data — too verbose for a conversational context window
+  const leanExtracted = {
+    ...extracted,
+    sourcePages: undefined,
+    products: (extracted.products || []).map(({ citations, ...rest }) => rest),
+  };
+
+  const contextBlock =
+    '## Extracted Specification\n' +
+    JSON.stringify(leanExtracted, null, 2) +
+    '\n\n## Matched Soprema Products\n' +
+    JSON.stringify(matched, null, 2);
+
+  const systemPrompt =
+    'You are a senior Soprema roofing product specialist advising a manufacturer rep. ' +
+    'You have deep expertise in commercial roofing systems, bituminous and thermoplastic membranes, ' +
+    'insulation, fasteners, and substitution-request standards (CSI 01 25 00). ' +
+    'Rules: ' +
+    '1. Lead with the direct answer — no preamble. ' +
+    '2. Plain English, roofer-friendly. Trades language is fine. ' +
+    '3. If a spec requirement may fail compliance, flag it explicitly. ' +
+    '4. Keep answers tight — 2–4 sentences unless the question demands more. ' +
+    '5. If the answer isn\'t in the provided context, say so directly — do not invent product specs.';
+
+  const messages = [];
+  if (Array.isArray(history) && history.length) {
+    history.slice(-6).forEach((h) => messages.push(h));
+  }
+  messages.push({
+    role: 'user',
+    content: contextBlock + '\n\nQuestion: ' + question,
+  });
+
+  const response = await withRateLimitRetry(() =>
+    getClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages,
+    })
+  );
+
+  logUsage('query', 'claude-haiku-4-5-20251001', response?.usage);
+  const text = response?.content?.[0]?.text;
+  if (!text) {
+    throw new Error('The AI returned an empty response. Please try again.');
+  }
+  return { answer: text };
 }
 
 async function generateSubstitutionRequest(matchedData, projectInfo, sendProgress) {
@@ -347,11 +507,19 @@ async function generateSubstitutionRequest(matchedData, projectInfo, sendProgres
   const response = await withRateLimitRetry(() =>
     getClient().messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 8192,
+      // Bumped from 8192 — property_comparison table per substitution + per-row
+      // citation data adds substantial output volume.
+      max_tokens: 16000,
       system: loadPrompt('subrequest'),
       messages: [{ role: 'user', content: userMessage }],
     }), sendProgress);
 
+  logUsage('subrequest', 'claude-sonnet-4-20250514', response?.usage);
+  if (response?.stop_reason === 'max_tokens') {
+    throw new Error(
+      'Failed to parse Claude response as JSON. Hit the max_tokens cap on the sub-request step — output was truncated.'
+    );
+  }
   return parseJSON(response.content[0].text);
 }
 
@@ -359,4 +527,8 @@ module.exports = {
   extractProducts,
   matchProducts,
   generateSubstitutionRequest,
+  askQuestion,
+  // Exposed for main.js's API-key management IPC handlers
+  resetClient,
+  resolveApiKey,
 };
